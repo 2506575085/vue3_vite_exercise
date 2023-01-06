@@ -3,8 +3,8 @@
 </template>
 
 <script setup lang="ts">
+import Quadtree from './components/Quadtree.vue'
 import Life from './components/Life.vue'
-
 </script>
 
 <style>
