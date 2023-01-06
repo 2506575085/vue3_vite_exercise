@@ -1,10 +1,21 @@
 <template>
-  <Life msg="Welcome to Your Vue.js App"/>
+  <button @click="change(Life)">life</button>
+  <button @click="change(Quadtree)">Quadtree</button>
+  <Component :is="component"></Component>
 </template>
 
 <script setup lang="ts">
+import { ref, shallowRef } from 'vue'
 import Quadtree from './components/Quadtree.vue'
 import Life from './components/Life.vue'
+
+type Comp = typeof Quadtree|typeof Life
+
+const component = shallowRef<Comp>(Life)
+function change(comp:Comp) {
+  component.value = comp
+}
+
 </script>
 
 <style>
