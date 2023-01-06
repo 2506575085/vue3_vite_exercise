@@ -8,11 +8,11 @@
     <div class="main_box" @click="changeSelect" ref="mainBox">
       <div 
         v-for="(box,index) in selectList" 
-        :key="box!.x+'-'+box!.y" 
+        :key="box.x+'-'+box.y" 
         v-memo="[box]" 
         :style="{
-          left: box!.x / maxX * 100 + '%',
-          top: Number(box!.y) / maxY * 100 + '%',
+          left: box.x / maxX * 100 + '%',
+          top: Number(box.y) / maxY * 100 + '%',
           width: 1 / maxX * 100 + '%',
           height: 1 / maxY * 100 + '%'
         }" 
@@ -30,18 +30,21 @@ let maxY = 200
 let running = ref(false)
 
 //选择集合key为y，Set值为x
-type setList = { [index: string]: Set<number> }
-const selectBox = ref<setList>({
-  '0':new Set([0]),
-  '10': new Set([1, 2,7]),
-  '11':new Set([2,3,6]),
-  '12': new Set([1, 3,  5, 6]),
-  '20': new Set([1, 2, 4,7]),
-  '21':new Set([2,3,5,6]),
-  '22': new Set([1,3,4,5, 6]),
+type SetList = { [index: number]: Set<number> }
+const selectBox = ref<SetList>({
+  0:new Set([0]),
+  10: new Set([1, 2,7]),
+  11:new Set([2,3,6]),
+  12: new Set([1, 3,  5, 6]),
+  20: new Set([1, 2, 4,7]),
+  21:new Set([2,3,5,6]),
+  22: new Set([1,3,4,5, 6]),
 })
-
-type Select = { x: number, y: number }
+interface Select{
+  x: number;
+  y: number
+}
+// type Select = { x: number, y: number }
 type SelectList = Array<Select>
 //修改单个状态
 function changeOne(select:Select, to:boolean) {
@@ -70,9 +73,10 @@ function changeSelect(e:MouseEvent) {
 const selectList = ref<SelectList>([])
 watchEffect(() => {
   const list:SelectList = []
-  Object.keys(selectBox.value).forEach(y => {
+  Object.keys(selectBox.value).forEach(strY => {
+    let y = Number(strY)
     selectBox.value[y].forEach(x => {
-      list.push({x,y:Number(y)})
+      list.push({x,y})
     })
   })
   selectList.value = [...list]
@@ -138,11 +142,12 @@ const t = ref<number>(0)
 function start() {
   t.value = setInterval(() => {
     running.value = true
-    let allBox:setList = {}
-    Object.keys(selectBox.value).forEach(y => {
+    let allBox:SetList = {}
+    Object.keys(selectBox.value).forEach(strY => {
+      let y = Number(strY)
       selectBox.value[y].forEach(x => {
         for (let j = x - 1; j <= x + 1; j++){
-          for (let k = Number(y) - 1; k <= Number(y) + 1; k++){
+          for (let k = y - 1; k <= y + 1; k++){
             if ((j >= 0) && (k >= 0) && (j<=maxX) && (k<=maxY)) {
               if (!allBox[k]) {
                 allBox[k] = new Set([])
@@ -153,12 +158,13 @@ function start() {
         }
       })
     })
-    Object.keys(allBox).forEach(y => {
+    Object.keys(allBox).forEach(strY => {
+      let y = Number(strY)
       allBox[y].forEach(x => {
         let count = 0
         for (let j = x - 1; j <= x+1; j++){
-          for (let k = Number(y) - 1; k <= Number(y) + 1; k++){
-            if ((j >= 0) && (k >= 0) && (j <= maxX) && (k <= maxY) && ((j != x) || (k != Number(y)))) {
+          for (let k = y - 1; k <= y + 1; k++){
+            if ((j >= 0) && (k >= 0) && (j <= maxX) && (k <= maxY) && ((j != x) || (k != y))) {
               if (selectBox.value[k]&&selectBox.value[k].has(j)) {
                 count++
               }
@@ -166,14 +172,15 @@ function start() {
           }
         }
         if (count == 3) {
-          changeOne({ x,y:Number(y) },true)
+          changeOne({ x,y },true)
         } else if((count >= 4)||(count <= 1)) {
-          changeOne({ x,y:Number(y) },false)
+          changeOne({ x,y },false)
         }
       })
     })
   },50)
 }
+
 function stop() {
   running.value = false
   clearInterval(t.value)
