@@ -129,21 +129,25 @@ function getFullQuadtree(treeNode: Quadtree) {
     }
 
     /**
-     * 获取应该放入子节点的元素列表，返回{子节点内的元素，剩余元素}
-     * @param childrenPosition 子节点位置
-     * @param itemsList 可能在子节点内的元素列表
+     * 将一部分元素放入上个子节点后本层级剩余的元素列表，不遍历所有节点四次以提升效率
      */
-    function getInnerItems(childrenPosition: { left: number, top: number }, itemsList: ItemsList) {
+     let lastInnerItemsList: ItemsList = treeNode.innerItems
+
+    /**
+     * 获取应该放入子节点的元素列表
+     * @param childrenPosition 子节点位置
+     */
+    function getInnerItems(childrenPosition: { left: number, top: number }) {
       /**
        * 子节点元素内
        * */
-      let innerItemsArr: ItemsList = []
+      const innerItemsArr: ItemsList = []
       /**
-       * 剩余元素
+       * 剩余元素列表
        */
-      let lastInnerItems: ItemsList = []
+      const lastInnerItems:ItemsList = []
       //返回在范围内的item  
-      itemsList.forEach((v,i) => {
+      lastInnerItemsList.forEach((v,i) => {
         /**每个item的中点 */
         let itemMid = {
           x: (v.size.width + v.position.left * 2) / 2,
@@ -166,50 +170,40 @@ function getFullQuadtree(treeNode: Quadtree) {
           lastInnerItems.push({ ...v })
         }
       })
+      //更新剩余元素列表
+      lastInnerItemsList = lastInnerItems
       // treeNode.innerItems = lastInnerItems //暴力删除，会导致大节点元素列表为空
-      return {innerItemsArr,lastInnerItems}
+      return innerItemsArr
     }
 
-    /**
-     * 将一部分元素放入上个子节点后本层级剩余的元素列表，不遍历所有节点四次以提升效率
-     */
-    let lastInnerItemsList: ItemsList = []
-    
     /**
      * 根据position获取子节点
      * @param position 
-     * @param itemsList 
      */
-    function getChildrenNode(position: { left: number, top: number }, itemsList: ItemsList): Quadtree {
-      //innerItemsArr为子节点内元素 lastInnerItems为剩余元素
-      let { innerItemsArr, lastInnerItems } = getInnerItems(position, itemsList)
-      //更新剩余元素列表
-      lastInnerItemsList = lastInnerItems
+    function getChildrenNode(position: { left: number, top: number }): Quadtree {
       return {
         size: childrenSize,
         position,
-        innerItems:innerItemsArr
+        innerItems:getInnerItems(position)
       }
     }
 
-    //第一次传入全部元素
     const childrenI: Quadtree = getChildrenNode({
       left: midPoint.x,
       top: treeNode.position.top
-    }, treeNode.innerItems)
-    //后续传入剩余元素
+    })
     const childrenII: Quadtree = getChildrenNode({
       left: midPoint.x,
       top: midPoint.y
-    },lastInnerItemsList)
+    })
     const childrenIII: Quadtree = getChildrenNode({
       left: treeNode.position.left,
       top: midPoint.y
-    },lastInnerItemsList)
+    })
     const childrenIV: Quadtree = getChildrenNode({
       left: treeNode.position.left,
       top: treeNode.position.top
-    },lastInnerItemsList)
+    })
 
     const childrenList: Quadtree[`children`] = {
       I: childrenI,
