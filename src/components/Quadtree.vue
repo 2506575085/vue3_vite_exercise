@@ -21,7 +21,7 @@
       
     </div>
     <div class="right">
-      <p v-for="compitem in compareList">{{ compitem.map(v=>v.id) }}</p>
+      <span class="list" v-for="compitem in compareList">{{ compitem.map(v=>v.id) }}</span>
     </div>
   </div>
 </template>
@@ -67,7 +67,7 @@ type Quadtree = {
   }
 }
 
-let itemCount = ref(100)
+let itemCount = ref(50)
 /**
  * 元素列表
  */
@@ -111,7 +111,7 @@ type CompareList = Array<ItemsList>
 const compareList = ref<CompareList>([])
 
 /**
- * 递归生成四叉树
+ * 递归生成四叉树,同时更新compareList
  * @param treeNode 四叉树节点
  * @msg 输出状态仅依赖输入的根节点,执行前需要更新传入值
  */
@@ -127,11 +127,23 @@ function getFullQuadtree(treeNode: Quadtree) {
       x: (treeNode.size.width + treeNode.position.left*2) / 2,
       y: (treeNode.size.height + treeNode.position.top*2) / 2
     }
-    /** 获取子节点的items*/
-    function getInnerItems(childrenPosition:{left:number,top:number}) {
-      let innerItemsArr: Array<Items> = []
+
+    /**
+     * 获取应该放入子节点的元素列表，返回{子节点内的元素，剩余元素}
+     * @param childrenPosition 子节点位置
+     * @param itemsList 可能在子节点内的元素列表
+     */
+    function getInnerItems(childrenPosition: { left: number, top: number }, itemsList: ItemsList) {
+      /**
+       * 子节点元素内
+       * */
+      let innerItemsArr: ItemsList = []
+      /**
+       * 剩余元素
+       */
+      let lastInnerItems: ItemsList = []
       //返回在范围内的item  
-      treeNode.innerItems.forEach((v,i) => {
+      itemsList.forEach((v,i) => {
         /**每个item的中点 */
         let itemMid = {
           x: (v.size.width + v.position.left * 2) / 2,
@@ -145,72 +157,77 @@ function getFullQuadtree(treeNode: Quadtree) {
         //   console.log('上边界',childrenPosition.top)
         //   console.log('下边界',childrenSize.height + childrenPosition.top)
         // }
-        if (
-          (itemMid.x >= (childrenPosition.left)) &&
-          (itemMid.x < (childrenSize.width + childrenPosition.left)) &&
-          (itemMid.y >= (childrenPosition.top)) &&
-          (itemMid.y < (childrenSize.height + childrenPosition.top))
-        ) {
-          innerItemsArr.push({...v})
+        if ((itemMid.x >= (childrenPosition.left)) &&
+        (itemMid.x < (childrenSize.width + childrenPosition.left)) &&
+        (itemMid.y >= (childrenPosition.top)) &&
+        (itemMid.y < (childrenSize.height + childrenPosition.top))) {
+          innerItemsArr.push({ ...v })
+        } else {
+          lastInnerItems.push({ ...v })
         }
       })
-      return innerItemsArr
+      // treeNode.innerItems = lastInnerItems //暴力删除，会导致大节点元素列表为空
+      return {innerItemsArr,lastInnerItems}
     }
+
+    /**
+     * 将一部分元素放入上个子节点后本层级剩余的元素列表，不遍历所有节点四次以提升效率
+     */
+    let lastInnerItemsList: ItemsList = []
     
-    let childrenI: Quadtree = {
-      size: childrenSize,
-      position: {
-        left: midPoint.x,
-        top: treeNode.position.top
-      },
-      innerItems:getInnerItems({left:midPoint.x,top:treeNode.position.top})
+    /**
+     * 根据position获取子节点
+     * @param position 
+     * @param itemsList 
+     */
+    function getChildrenNode(position: { left: number, top: number }, itemsList: ItemsList): Quadtree {
+      //innerItemsArr为子节点内元素 lastInnerItems为剩余元素
+      let { innerItemsArr, lastInnerItems } = getInnerItems(position, itemsList)
+      //更新剩余元素列表
+      lastInnerItemsList = lastInnerItems
+      return {
+        size: childrenSize,
+        position,
+        innerItems:innerItemsArr
+      }
     }
-    let childrenII: Quadtree = {
-      size: childrenSize,
-      position: {
-        left: midPoint.x,
-        top: midPoint.y
-      },
-      innerItems: getInnerItems({left:midPoint.x,top:midPoint.y})
-    }
-    let childrenIII: Quadtree = {
-      size: childrenSize,
-      position: {
-        left: treeNode.position.left,
-        top: midPoint.y
-      },
-      innerItems: getInnerItems({left:treeNode.position.left,top:midPoint.y})
-    }
-    let childrenIV: Quadtree = {
-      size: childrenSize,
-      position: {
-        left: treeNode.position.left,
-        top: treeNode.position.top
-      },
-      innerItems: getInnerItems({left:treeNode.position.left,top:treeNode.position.top})
-    }
-    let childrenList: Quadtree[`children`] = {
+
+    //第一次传入全部元素
+    const childrenI: Quadtree = getChildrenNode({
+      left: midPoint.x,
+      top: treeNode.position.top
+    }, treeNode.innerItems)
+    //后续传入剩余元素
+    const childrenII: Quadtree = getChildrenNode({
+      left: midPoint.x,
+      top: midPoint.y
+    },lastInnerItemsList)
+    const childrenIII: Quadtree = getChildrenNode({
+      left: treeNode.position.left,
+      top: midPoint.y
+    },lastInnerItemsList)
+    const childrenIV: Quadtree = getChildrenNode({
+      left: treeNode.position.left,
+      top: treeNode.position.top
+    },lastInnerItemsList)
+
+    const childrenList: Quadtree[`children`] = {
       I: childrenI,
       II: childrenII,
       III: childrenIII,
       IV: childrenIV
     }
     treeNode.children={...childrenList}
-    // console.log("treeNode",treeNode)
     if (treeNode.children && treeNode.children.I) {
-      // console.log(1)
       getFullQuadtree(childrenI)
     }
     if (treeNode.children && treeNode.children.II) {
-      // console.log(2)
       getFullQuadtree(childrenII)
     }
     if (treeNode.children && treeNode.children.III) {
-      // console.log(3)
       getFullQuadtree(childrenIII)
     }
     if (treeNode.children && treeNode.children.IV) {
-      // console.log(4)
       getFullQuadtree(childrenIV)
     }
   } else {
@@ -221,14 +238,23 @@ function getFullQuadtree(treeNode: Quadtree) {
   }
 }
 
+/**
+ * 更新四叉树和compareList
+ * @param itemsList
+ */
+function updateTree(itemsList: ItemsList) {
+  //更新根节点
+  quadtree.value.innerItems = itemsList
+  //清空compareList
+  compareList.value = []
+  getFullQuadtree(quadtree.value)
+}
+
 watchEffect(() => {
   
 })
 watch(itemsList, () => {
-  quadtree.value.innerItems = itemsList.value
-  //清空compareList
-  compareList.value = []
-  getFullQuadtree(quadtree.value)
+  updateTree(itemsList.value)
 },{immediate:true})
 const t = ref<number>(0)
 function random() {
@@ -248,7 +274,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .main_box {
   width: 50%;
   padding-bottom: 50%;
@@ -259,10 +285,14 @@ onBeforeUnmount(() => {
     border-top: 1px solid #fff2f2;
 }
 .right{
-  width: 50%;
+  width: 40%;
   position: absolute;
   top: 50px;
-  right: 0;
+  right: 20px;
+  .list{
+    display: inline-block;
+    width: 20%;
+  }
 }
 .items{
   background-color: aqua;
