@@ -1,10 +1,14 @@
 <template>
-  <div class="hello">
-    <div>
-      <button @click="running?()=>{}:start()">start</button>
-      <button @click="stop">stop</button>
-      <button @click="clear">clear</button>
-      <div>total:{{ selectList.length }}</div>
+  <div class="view">
+    <div class="top flex_center">
+      <div class="flex">
+        <div class="button" @click="running?()=>{}:start()">开始</div>
+        <div class="button" @click="stop">暂停</div>
+        <div class="button" @click="clear">清空</div>
+        <div class="button" @click="random">随机添加</div>
+      </div>
+      
+      <div class="total">总数:{{ selectList.length }}</div>
       <!-- <div>{{ selectBox }}</div> -->
     </div>
     <div class="main_box" @click="changeSelect" ref="mainBox">
@@ -26,10 +30,11 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, watch, onBeforeUnmount } from 'vue'
-import { deepClone } from '../utils'
+import { deepClone, randomNum } from '@/utils'
+const { intFullClose } = randomNum
 const mainBox = ref<HTMLInputElement | null>(null)
-let maxX = 200
-let maxY = 200
+let maxX = 100
+let maxY = 50
 let running = ref(false)
 
 //选择集合key为y，Set值为x
@@ -38,17 +43,28 @@ const selectBox = ref<SetList>({
   // 1: new Set([3]),
   // 2: new Set([1, 3]),
   // 3: new Set([2, 3]),
-  18: new Set([87, 89]),
-  19: new Set([88, 91, 93]),
-  20: new Set([85, 86, 90]),
-  21: new Set([85, 89, 88, 93]),
-  22: new Set([87, 90, 91]),
-  23: new Set([85, 90, 93]),
-  24: new Set([89, 93]),
-  25: new Set([85, 87, 91, 89]),
-  26: new Set([92, 93]),
-  27: new Set([93, 89, 86])
+  // 18: new Set([57, 59]),
+  // 19: new Set([58, 51, 53]),
+  // 20: new Set([55, 56, 60]),
+  // 21: new Set([55, 59, 58, 63]),
+  // 22: new Set([57, 60, 61]),
+  // 23: new Set([55, 60, 63]),
+  // 24: new Set([59, 63]),
+  // 25: new Set([55, 57, 61, 59]),
+  // 26: new Set([52, 63]),
+  // 27: new Set([53, 59, 56])
 })
+function random() {
+  for (let i = 0; i < 500; i++){
+    let randomY = intFullClose(0, maxY-1)
+    if (selectBox.value[randomY]) {
+      selectBox.value[randomY].add(intFullClose(0,maxX-1))
+    } else {
+      selectBox.value[randomY]=new Set([intFullClose(0,maxX-1)])
+    }
+  }
+}
+random()
 const selectBoxClone = ref<SetList>({})
 interface Select{
   x: number;
@@ -150,7 +166,7 @@ watchEffect(() => {
 //   start()
 //   return res
 // }
-const t = ref<number>(0)
+const t = ref<NodeJS.Timer>()
 function start() {
   t.value = setInterval(() => {
     running.value = true
@@ -160,7 +176,7 @@ function start() {
       selectBox.value[y].forEach(x => {
         for (let j = x - 1; j <= x + 1; j++){
           for (let k = y - 1; k <= y + 1; k++){
-            if ((j >= 0) && (k >= 0) && (j<=maxX) && (k<=maxY)) {
+            if ((j >= 0) && (k >= 0) && (j<maxX) && (k<maxY)) {
               if (!allBox[k]) {
                 allBox[k] = new Set([])
               }
@@ -209,17 +225,31 @@ function clear() {
 }
 </script>
 
-<style scoped>
+<style scoped lang="less">
+.flex_center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .main_box {
+  cursor: pointer;
   width: 100%;
-  padding-bottom: 100%;
-  position: relative;
+  padding-bottom: 50%;
+  position: absolute;
+  background-image: linear-gradient( 90deg,rgba(255,0,0,0.05) 0.5px,rgba(72,42,10,0) 0),linear-gradient( 1turn,rgba(0,0,0,0.05) 0.5px,rgba(255,153,44,0) 0);
+  background-size: 1% 2%;
+  box-sizing: border-box;
+  border-top: 1px solid #fff2f2;
+  background-color: antiquewhite;
 }
 .items{
-  background-color: aqua;
+  background-color:cornflowerblue;
+  border-radius: 10%;
   position: absolute;
 }
-
+.view {
+  position: relative;
+}
 .flex {
   display: flex;
 }
@@ -236,5 +266,29 @@ function clear() {
 .active {
   background-color: aqua;
 }
+.top {
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  z-index: 99;
+  .total {
+    font-size: 30px;
+    color: #666;
+  }
+  .button {
+    cursor: pointer;
+    color: #e300f8;
+    background-color: rgba(0,0,0,0.05);
+    border: #e300f8 1px solid;
+    border-radius: 15px;
+    width: 80px;
+    padding: 10px 0;
+    margin:5px 20px;
+  }
+  .button:hover{
+    background-color: rgba(251, 144, 255,0.5);
+  }
+}
+
 </style>
 

@@ -48,3 +48,72 @@
           return value;
   }
 }
+
+
+/**
+ * 生成范围内随机数
+ */
+export const randomNum: RandomNum = {
+
+    /**
+     * 生成[min,max]范围随机数
+     * @param min 
+     * @param max 
+     * @returns 
+     */
+    fullClose(min,max) {
+        var result = Math.random()*(max+1-min)+min;
+        while(result>max) {
+            result = Math.random()*(max+1-min)+min;
+        }
+        return result;
+    },
+  
+    /**
+     * 生成(min,max)范围随机数
+     * @param min 
+     * @param max 
+     * @returns 
+     */
+    fullOpen(min,max) {
+        var result = Math.random()*(max-min)+min;
+        while(result == min) {
+            result = Math.random()*(max-min)+min;
+        }
+        return result;
+    },
+
+    /**
+     * 生成(min,max]范围随机数
+     * @param min 
+     * @param max 
+     * @returns 
+     */
+    leftOpen(min,max) {
+        var result = Math.random()*(max-min+1)+min-1;
+        while(result<min) {
+            result = Math.random()*(max-min+1)+min-1;
+        }
+        return result;
+    },
+
+    /**
+     * 生成[min,max)范围随机数
+     * @param min 
+     * @param max 
+     * @returns 
+     */
+    rightOpen(min, max) {
+        return Math.random()*(min-max)+max
+    },
+    
+    /**
+     * 生成[min,max]范围随机整数
+     * @param min 
+     * @param max 
+     * @returns 
+     */
+    intFullClose(min, max) {
+        return Math.floor(Math.random()*(max-min+1))+min
+    }
+}
