@@ -1,4 +1,4 @@
-const LoginRoute: AppRouteModule = {
+const QuadtreeRoute: AppRouteModule = {
   path: '/Quadtree',
   name: 'Quadtree',
   component: () => import('@/components/Quadtree.vue'),
@@ -6,4 +6,4 @@ const LoginRoute: AppRouteModule = {
     title: "Quadtree",
   },
 };
-export default LoginRoute;
+export default QuadtreeRoute;

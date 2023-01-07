@@ -1,5 +1,5 @@
 
-const LoginRoute: AppRouteModule = {
+const LifeRoute: AppRouteModule = {
   path: '/Life',
   name: 'Life',
   component: () => import('@/components/Life.vue'),
@@ -7,4 +7,4 @@ const LoginRoute: AppRouteModule = {
     title: "Life",
   },
 };
-export default LoginRoute;
+export default LifeRoute;
