@@ -52,12 +52,12 @@ import { Items,ItemsList } from './types'
 const instance = getCurrentInstance()
 const { fullClose,intFullClose } = randomNum
 const mainBox = ref<HTMLInputElement | null>(null)
-let maxX = 200
-let maxY = 200
+let maxX = 800
+let maxY = 800
 let running = ref(false)
 
 /*****   元素总数    *****/
-let itemCount = ref(20)
+let itemCount = ref(100)
 /*****   元素尺寸    *****/
 let itemSize = ref<Items['size']>({ width: 10, height: 10 })
 /**
@@ -70,8 +70,8 @@ let itemsList = ref<ItemsList>([])
  */
 let controlItems = ref<Items>({
   position: {
-    left: maxX/2-1,
-    top: maxY/2-1
+    left: maxX/2-itemSize.value.width/2,
+    top: maxY/2-itemSize.value.height/2
   },
   size: {...itemSize.value},
   id: '-1',
@@ -117,7 +117,7 @@ document.onkeydown = changeDir
  */
 function itemsRun(item: Items) {
   const dir = item.direction
-  const speed = item.crashSize||0.05
+  const speed = item.crashSize||0.15
   function ifOut() {
     if ((item.position.top < 0) ||
       (item.position.top > (maxY - item.size.height)) ||

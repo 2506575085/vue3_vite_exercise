@@ -14,6 +14,7 @@ export default  function useQuadtree(maxX: number, maxY: number, IitemsList: Ite
    * 四叉树的根结点
    */
   let quadtree = ref<Quadtree>({
+    index:'',
     size: {
       width: maxX,
       height:maxY
@@ -98,48 +99,49 @@ export default  function useQuadtree(maxX: number, maxY: number, IitemsList: Ite
        * 根据position获取子节点
        * @param position 
        */
-      function getChildrenNode(position: { left: number, top: number }): Quadtree {
+      function getChildrenNode(position: { left: number, top: number },index:string): Quadtree {
         return {
           size: childrenSize,
           position,
-          innerItems:getInnerItems(position)
+          innerItems: getInnerItems(position),
+          index
         }
       }
 
       const childrenI: Quadtree = getChildrenNode({
         left: midPoint.x,
         top: treeNode.position.top
-      })
+      },treeNode.index+'1')
       const childrenII: Quadtree = getChildrenNode({
         left: midPoint.x,
         top: midPoint.y
-      })
+      },treeNode.index+'2')
       const childrenIII: Quadtree = getChildrenNode({
         left: treeNode.position.left,
         top: midPoint.y
-      })
+      },treeNode.index+'3')
       const childrenIV: Quadtree = getChildrenNode({
         left: treeNode.position.left,
         top: treeNode.position.top
-      })
+      },treeNode.index+'4')
 
       const childrenList: Quadtree[`children`] = {
-        I: childrenI,
-        II: childrenII,
-        III: childrenIII,
-        IV: childrenIV
+        '1': childrenI,
+        '2': childrenII,
+        '3': childrenIII,
+        '4': childrenIV
       }
       treeNode.children=childrenList
-      if (treeNode.children && treeNode.children.I) {
+      if (treeNode.children && treeNode.children['1']) {
         getFullQuadtree(childrenI)
       }
-      if (treeNode.children && treeNode.children.II) {
+      if (treeNode.children && treeNode.children['2']) {
         getFullQuadtree(childrenII)
       }
-      if (treeNode.children && treeNode.children.III) {
+      if (treeNode.children && treeNode.children['3']) {
         getFullQuadtree(childrenIII)
       }
-      if (treeNode.children && treeNode.children.IV) {
+      if (treeNode.children && treeNode.children['4']) {
         getFullQuadtree(childrenIV)
       }
     } else {

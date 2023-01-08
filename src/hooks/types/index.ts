@@ -23,19 +23,20 @@ type ItemsList = Array<Items>
   * 四叉树
   */
 type Quadtree = {
-   size: {
-     width: number,
-     height: number
-   },
-   position: {
-     left: number,
-     top: number
-   },
-   innerItems: ItemsList,
-   children?: {
-     [index: string]: Quadtree
-   }
- }
+  index: string,
+  size: {
+    width: number,
+    height: number
+  },
+  position: {
+    left: number,
+    top: number
+  },
+  innerItems: ItemsList,
+  children?: {
+    [index: string]: Quadtree
+  }
+}
 /**
  * 比较列表
  */
