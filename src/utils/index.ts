@@ -117,3 +117,16 @@ export const randomNum: RandomNum = {
         return Math.floor(Math.random()*(max-min+1))+min
     }
 }
+
+/**
+ * sleep
+ */
+export function sleep(time:number){
+    var timeStamp = new Date().getTime();
+    var endTime = timeStamp + time;
+    while(true){
+        if (new Date().getTime() > endTime){
+            return;
+        } 
+    }
+}

@@ -31,29 +31,14 @@
 <script setup lang="ts">
 import { ref, watchEffect, watch, onBeforeUnmount } from 'vue'
 import { deepClone, randomNum } from '@/utils'
+import { SetList,Select,SelectList } from './types'
 const { intFullClose } = randomNum
 const mainBox = ref<HTMLInputElement | null>(null)
 let maxX = 100
 let maxY = 50
 let running = ref(false)
 
-//选择集合key为y，Set值为x
-type SetList = { [index: number]: Set<number> }
-const selectBox = ref<SetList>({
-  // 1: new Set([3]),
-  // 2: new Set([1, 3]),
-  // 3: new Set([2, 3]),
-  // 18: new Set([57, 59]),
-  // 19: new Set([58, 51, 53]),
-  // 20: new Set([55, 56, 60]),
-  // 21: new Set([55, 59, 58, 63]),
-  // 22: new Set([57, 60, 61]),
-  // 23: new Set([55, 60, 63]),
-  // 24: new Set([59, 63]),
-  // 25: new Set([55, 57, 61, 59]),
-  // 26: new Set([52, 63]),
-  // 27: new Set([53, 59, 56])
-})
+const selectBox = ref<SetList>({})
 function random() {
   for (let i = 0; i < 500; i++){
     let randomY = intFullClose(0, maxY-1)
@@ -66,11 +51,7 @@ function random() {
 }
 random()
 const selectBoxClone = ref<SetList>({})
-interface Select{
-  x: number;
-  y: number
-}
-type SelectList = Array<Select>
+
 //根据选择集合修改dataList
 const selectList = ref<SelectList>([])
 //修改单个状态,修改克隆值，需要在前后分别克隆操作
@@ -109,118 +90,71 @@ watchEffect(() => {
   })
   selectList.value = [...list]
 })
-//计时器两种方案不知道有没有区别
-// async function delayFn(delay:number):Promise<any> {
-//   await new Promise(function (res:Function, reject) {
-//     setTimeout(() => {
-//       let allBox:setList = {}
-//       Object.keys(selectBox.value).forEach(y => {
-//         selectBox.value[y].forEach(x => {
-//           for (let j = x - 1; j <= x + 1; j++){
-//             for (let k = Number(y) - 1; k <= Number(y) + 1; k++){
-//               if ((j >= 0) && (k >= 0) && (j<=maxX) && (k<=maxY)) {
-//                 if (!allBox[k]) {
-//                   allBox[k] = new Set([])
-//                 }
-//                 allBox[k].add(j)
-//               }
-//             }
-//           }
-//         })
-//       })
-//       // console.log("ALL", allBox)
-//       Object.keys(allBox).forEach(y => {
-//         allBox[y].forEach(x => {
-//           let count = 0
-//           for (let j = x - 1; j <= x+1; j++){
-//             for (let k = Number(y) - 1; k <= Number(y) + 1; k++){
-//               if ((j >= 0) && (k >= 0) && (j <= maxX) && (k <= maxY) && ((j != x) || (k != Number(y)))) {
-//                 if (selectBox.value[k]&&selectBox.value[k].has(j)) {
-//                   count++
-//                 }
-//                 // if (dataList.value[k][j].selected) {
-//                 //   count++
-//                 // }
-//               }
-//             }
-//           }
-//           if (count == 3) {
-//             changeOne({ x,y:Number(y) },true)
-//           } else if((count >= 4)||(count <= 1)) {
-//             changeOne({ x,y:Number(y) },false)
-//           }
-//         })
-//       })
-//       res()
-//     },delay)
-//   })
-// }
-// async function start(res?:Promise<any>) {
-//   if (res) {
-//     res.then(async () => {
-//       res = await delayFn(10)
-//     })
-//   } else {
-//     res = await delayFn(10)
-//   }
-//   start()
-//   return res
-// }
-const t = ref<NodeJS.Timer>()
-function start() {
-  t.value = setInterval(() => {
-    running.value = true
-    let allBox:SetList = {}
-    Object.keys(selectBox.value).forEach(strY => {
-      let y = Number(strY)
-      selectBox.value[y].forEach(x => {
-        for (let j = x - 1; j <= x + 1; j++){
-          for (let k = y - 1; k <= y + 1; k++){
-            if ((j >= 0) && (k >= 0) && (j<maxX) && (k<maxY)) {
-              if (!allBox[k]) {
-                allBox[k] = new Set([])
-              }
-              allBox[k].add(j)
+
+function updateStatus() {
+  let allBox:SetList = {}
+  Object.keys(selectBox.value).forEach(strY => {
+    let y = Number(strY)
+    selectBox.value[y].forEach(x => {
+      for (let j = x - 1; j <= x + 1; j++){
+        for (let k = y - 1; k <= y + 1; k++){
+          if ((j >= 0) && (k >= 0) && (j<maxX) && (k<maxY)) {
+            if (!allBox[k]) {
+              allBox[k] = new Set([])
+            }
+            allBox[k].add(j)
+          }
+        }
+      }
+    })
+  })
+  selectBoxClone.value = deepClone(selectBox.value)!
+  Object.keys(allBox).forEach(strY => {
+    let y = Number(strY)
+    allBox[y].forEach(x => {
+      let count = 0
+      for (let j = x - 1; j <= x+1; j++){
+        for (let k = y - 1; k <= y + 1; k++){
+          if ((j >= 0) && (k >= 0) && (j <= maxX) && (k <= maxY) && ((j != x) || (k != y))) {
+            if (selectBox.value[k]&&selectBox.value[k].has(j)) {
+              count++
             }
           }
         }
-      })
+      }
+      if (count == 3) {
+        changeOne({ x,y },true)
+      } else if((count >= 4)||(count <= 1)) {
+        changeOne({ x,y },false)
+      }
     })
-    selectBoxClone.value = deepClone(selectBox.value)!
-    Object.keys(allBox).forEach(strY => {
-      let y = Number(strY)
-      allBox[y].forEach(x => {
-        let count = 0
-        for (let j = x - 1; j <= x+1; j++){
-          for (let k = y - 1; k <= y + 1; k++){
-            if ((j >= 0) && (k >= 0) && (j <= maxX) && (k <= maxY) && ((j != x) || (k != y))) {
-              if (selectBox.value[k]&&selectBox.value[k].has(j)) {
-                count++
-              }
-            }
-          }
-        }
-        if (count == 3) {
-          changeOne({ x,y },true)
-        } else if((count >= 4)||(count <= 1)) {
-          changeOne({ x,y },false)
-        }
-      })
-    })
-    selectBox.value = deepClone(selectBoxClone.value)!
-  },50)
+  })
+  selectBox.value = deepClone(selectBoxClone.value)!
 }
 
+const timeout = ref<NodeJS.Timeout>()
+
+function run() {
+  timeout.value = setTimeout(() => {
+    updateStatus()
+    clearTimeout(timeout.value)
+    if (running.value) {
+      start()
+    }
+  },50)
+}
+function start() {
+  running.value = true
+  run()
+}
 function stop() {
   running.value = false
-  clearInterval(t.value)
 }
 onBeforeUnmount(() => {
-  clearInterval(t.value)
+  running.value = false
 })
 function clear() {
   running.value = false
-  clearInterval(t.value)
   selectBox.value = {}
 }
 </script>
@@ -291,4 +225,3 @@ function clear() {
 }
 
 </style>
-
