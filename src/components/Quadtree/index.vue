@@ -18,7 +18,7 @@
           {{ box.id }}
         </div>
       </div>
-      <div 
+      <!-- <div 
         class="items"
         :style="{
           backgroundColor:'red',
@@ -28,7 +28,7 @@
           height: controlItems.size.width / maxY * 100 + '%'
         }" 
         :key="-1"
-      ></div>
+      ></div> -->
     </div>
     <div class="right">
       <div class="button_box">
@@ -47,7 +47,8 @@ import { ref, watchEffect, watch, onBeforeUnmount, onMounted, getCurrentInstance
 import { randomNum, sleep} from '@/utils/index'
 import UseQuadTree from '@/hooks/useQuadtree'
 import UseCollisionDetection from '@/hooks/useCollisionDetection'
-import { Items,ItemsList } from './types'
+import useMoveItems from '@/hooks/useMoveItems'
+import { moveItem, ItemsList } from '@/hooks/types'
 
 const instance = getCurrentInstance()
 const { fullClose,intFullClose } = randomNum
@@ -57,152 +58,17 @@ let maxY = 800
 let running = ref(false)
 
 /*****   元素总数    *****/
-let itemCount = ref(100)
+let itemCount = ref(50)
 /*****   元素尺寸    *****/
-let itemSize = ref<Items['size']>({ width: 10, height: 10 })
-/**
- * 元素列表
- */
-let itemsList = ref<ItemsList>([])
- 
-/**
- * 键盘控制的元素，id为-1
- */
-let controlItems = ref<Items>({
-  position: {
-    left: maxX/2-itemSize.value.width/2,
-    top: maxY/2-itemSize.value.height/2
-  },
-  size: {...itemSize.value},
-  id: '-1',
-  direction:'stop'
-})
+let itemSize = ref<moveItem['size']>({ width: 10, height: 10 })
 
 /**
- * 根据键盘按键改变移动方向
- * @param e 
+ * 生成itemList,随机item方法，改变元素方向方法
  */
-function changeDir(e: KeyboardEvent) {
-  switch (e.key) {
-    case 'ArrowUp':
-      controlItems.value.direction = 'up'
-      e.preventDefault()
-      break
-    case 'ArrowDown':
-      controlItems.value.direction = 'down'
-      e.preventDefault()
-      break
-    case 'ArrowLeft':
-      controlItems.value.direction = 'left'
-      e.preventDefault()
-      break
-    case 'ArrowRight':
-      controlItems.value.direction = 'right'
-      e.preventDefault()
-      break
-    case ' ':
-      controlItems.value.direction = 'stop'
-      e.preventDefault()
-      break
-    default:
-      break
-  }
-}
-
-document.onkeydown = changeDir
+const { itemsList, randomItems, changeDir} = useMoveItems({size:itemSize.value},{maxX,maxY},itemCount.value)
 
 /**
- * 根据移动方向改变元素位置
- * @param item 
- */
-function itemsRun(item: Items) {
-  const dir = item.direction
-  const speed = item.crashSize||0.15
-  function ifOut() {
-    if ((item.position.top < 0) ||
-      (item.position.top > (maxY - item.size.height)) ||
-      (item.position.left < 0) ||
-      (item.position.left > (maxX - item.size.width))) {
-      return true
-    } else {
-      return false
-    }
-  }
-  if (dir == 'up') {
-    if (ifOut()) {
-      item.direction = 'down'
-      item.position.top += speed
-    } else {
-      item.position.top -= speed
-    }
-  }
-  if (dir == 'down') {
-    if (ifOut()) {
-      item.direction = 'up'
-      item.position.top -= speed
-    } else {
-      item.position.top += speed
-    }
-  }
-  if (dir == 'left') {
-    if (ifOut()) {
-      item.direction = 'right'
-      item.position.left += speed
-    } else {
-      item.position.left -= speed
-    }
-  }
-  if (dir == 'right') {
-    if (ifOut()) {
-      item.direction = 'left'
-      item.position.left -= speed
-    } else {
-      item.position.left += speed
-    }
-  }
-  if (dir == 'stop') {
-    
-  }
-}
-
-/**
- * 获取随机方向
- */
- function randomDirect() {
-  let randomNum = intFullClose(1, 4)
-  switch (randomNum) {
-    case 1:
-      return 'up'
-    case 2:
-      return 'down'
-    case 3:
-      return 'left'
-    case 4:
-      return 'right'
-  }
-}
-/**
- * 随机生成元素
- */
-function randomItems() {
-  itemsList.value = Array.from({ length: itemCount.value }).map((v, i) => {
-    return {
-      size: {...itemSize.value},
-      position: {
-        left: fullClose(0,maxX-itemSize.value.width),
-        top: fullClose(0,maxY-itemSize.value.height),
-      },
-      id: i.toString(),
-      direction:randomDirect()!
-    }
-  })
-  itemsList.value.push(
-    controlItems.value
-  )
-}
-
-/**
- * 四叉树的根结点
+ * 生成四叉树的根结点
  * 
  * 比较列表
  * 
@@ -216,10 +82,31 @@ function randomItems() {
 const { quadtree, compareList, getFullQuadtree, updateTree } = UseQuadTree(maxX,maxY,itemsList.value)
 
 /**
- * 碰撞检测
+ * 生成碰撞检测
  */
-const { ifCrash } = UseCollisionDetection(compareList)
+const { ifCrash } = UseCollisionDetection(compareList,changeDir)
 
+/**
+ * 根据移动方向改变元素位置
+ * @param item 
+ */
+ function itemsRun(item: moveItem) {
+  //边界检测
+  if ((item.position.top < 0) || (item.position.top > (maxY - item.size.height))) {
+    item.direction.x=item.direction.x
+    item.direction.y=-item.direction.y
+  } else if ((item.position.left < 0) || (item.position.left > (maxX - item.size.width))) {
+    item.direction.x=-item.direction.x
+    item.direction.y=item.direction.y
+  }
+  item.position.top += item.direction.y
+  item.position.left += item.direction.x
+  
+  item.midPoint = {
+    x: item.position.left+(item.size.width/2),
+    y: item.position.top+(item.size.height/2)
+  }
+}
 
 let timeout = ref<NodeJS.Timeout>()
 
@@ -244,7 +131,7 @@ function run() {
  * random按钮回调
  */
  function random() {
-  randomItems()
+  randomItems(itemsList)
   start()
 }
 
@@ -252,7 +139,6 @@ function run() {
  * start按钮回调
  */
 function start() {
-  console.log(quadtree.value)
   running.value = true
   run()
 }
@@ -262,6 +148,7 @@ function start() {
  */
 function stop() {
   running.value = false
+  console.log(quadtree.value)
 }
 
 onMounted(() => {
@@ -292,6 +179,7 @@ onBeforeUnmount(() => {
     background-color: aqua;
     position: absolute;
     font-size: 1px;
+    border-radius: 50%;
   }
 
   .active {

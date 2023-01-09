@@ -1,23 +1,44 @@
 import { Ref } from 'vue'
-/**item的类型 */
-interface Items {
+
+/**
+ * 需要配置的item信息
+ */
+interface defaultItemData{
+  size: {
+    width: number,
+    height: number
+  }
+}
+
+/**
+ * 根据配置信息生成的随机item信息
+ */
+interface moveItem extends defaultItemData {
+  id: string,
+  /**元素左上角点位置*/
   position: {
     left: number,
     top: number
   },
-  size: {
-    width: number,
-    height: number
+  /**中心点坐标，自动计算*/
+  midPoint: {
+    x: number,
+    y: number
   },
-  id?: string,
-  direction: 'up' | 'down' | 'left' | 'right' | 'stop',
+  /**方向向量*/
+  direction: {
+    x: number,
+    y: number,
+  },
+  /**移动速度 */
+  speed:number,
   crashSize?:number
 }
 
 /**
  * item集合
  */
-type ItemsList = Array<Items>
+type ItemsList = Array<moveItem>
 
  /**
   * 四叉树
@@ -51,4 +72,4 @@ type UseQuadtreeReturn = {
   getFullQuadtree: (treeNode: Quadtree) => void,
   updateTree: (itemsList: ItemsList) => void,
 }
-export type { Quadtree, Items, CompareList, ItemsList, UseQuadtreeReturn }
+export type { Quadtree, CompareList, ItemsList, UseQuadtreeReturn, defaultItemData, moveItem }

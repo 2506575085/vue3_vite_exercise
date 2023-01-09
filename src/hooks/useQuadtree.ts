@@ -1,5 +1,5 @@
 import { Ref, ref } from 'vue'
-import type {ItemsList,Items,UseQuadtreeReturn,Quadtree,CompareList} from './types'
+import type {ItemsList,moveItem,UseQuadtreeReturn,Quadtree,CompareList} from './types'
 
 /**
  * 生成四叉树
@@ -9,7 +9,7 @@ import type {ItemsList,Items,UseQuadtreeReturn,Quadtree,CompareList} from './typ
  * @param itemSize 内容元素尺寸
  * @returns quadtree:四叉树, compareList:检测列表 , getFullQuadtree: 获取完整四叉树方法, updateTree:更新四叉树方法
  */
-export default  function useQuadtree(maxX: number, maxY: number, IitemsList: ItemsList, itemSize?:Items['size']):UseQuadtreeReturn {
+export default  function useQuadtree(maxX: number, maxY: number, IitemsList: ItemsList, itemSize?:moveItem['size']):UseQuadtreeReturn {
   /**
    * 四叉树的根结点
    */

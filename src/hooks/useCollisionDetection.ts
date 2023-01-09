@@ -1,71 +1,40 @@
 import { Ref, ref } from 'vue'
-import type { Items, CompareList } from './types'
+import type {moveItem, CompareList } from './types'
 
-export default function useCollisionDetection(compareList:Ref<CompareList>) {
+export default function useCollisionDetection(compareList: Ref<CompareList>, changeDirection:(item:moveItem,crashDir:moveItem['direction'])=>void) {
   /**
    * 碰撞检测
    */
   function ifCrash() {
-    /**
-     * 使item反向
-     * @param item
-     */
-    function changeDirection(item: Items) {
-      if (item.direction=='down') {
-        item.direction = 'up'
-      } else if (item.direction == 'up') {
-        item.direction = 'down'
-      } else if (item.direction == 'left') {
-        item.direction = 'right'
-      } else if (item.direction == 'right') {
-        item.direction = 'left'
-      } else if (item.direction == 'stop') {
-        item.direction = 'down'
-      }
-    }
     compareList.value.forEach(compareItem => {
       if (compareItem.length == 2) {
         const f = compareItem[0]
         const s = compareItem[1]
         let crashed = false
         // console.log(f, s)
-        if (f.position.top > s.position.top) {
-          if ((f.position.top - s.position.top) <= s.size.height) {
-            if (f.position.left > s.position.left) {
-              if ((f.position.left - s.position.left) <= s.size.width) {
-                crashed = true
-                // console.log( f.id,'从右下面碰撞了'+s.id)
-              }
-            }
-            if (f.position.left <= s.position.left) {
-              if ((s.position.left - f.position.left) <= f.size.width) {
-                crashed = true
-                // console.log( f.id,'从左下面碰撞了'+s.id)
-              }
-            }
-          }
-        }
-        if (f.position.top <= s.position.top) {
-          if ((s.position.top - f.position.top)<=f.size.height) {
-            if (f.position.left > s.position.left) {
-              if ((f.position.left - s.position.left) <= s.size.width) {
-                crashed = true
-                // console.log( f.id,'从右上面碰撞了'+s.id)
-              }
-            }
-            if (f.position.left <= s.position.left) {
-              if ((s.position.left - f.position.left) <= f.size.width) {
-                crashed = true
-                // console.log( f.id,'从左上面碰撞了'+s.id)
-              }
-            }
-          }
+        let l = Math.sqrt(Math.pow(Math.abs(f.midPoint.x - s.midPoint.x),2)+Math.pow(Math.abs(f.midPoint.y - s.midPoint.y),2))
+        if (l <= ((f.size.width+s.size.width)/2)) {
+          crashed = true
+          console.log('crash')
         }
         if (crashed) {
+          let sXSpeed = s.midPoint.x - f.midPoint.x
+          let sYSpeed = s.midPoint.y - f.midPoint.y
+          let sx = Math.pow(s.speed, 2) * (Math.pow(sYSpeed, 2) / (Math.pow(sYSpeed, 2) + Math.pow(sXSpeed, 2)))
+          sx = sXSpeed>0?sx:-sx
+          let sy = sx / sXSpeed * sYSpeed
+          sx = sXSpeed>0?sx:-sx
+
+          let fXSpeed = f.midPoint.x - s.midPoint.x
+          let fYSpeed = f.midPoint.y - s.midPoint.y
+          let fx = Math.pow(f.speed, 2) * (Math.pow(fYSpeed, 2) / (Math.pow(fYSpeed, 2) + Math.pow(fXSpeed, 2)))
+          fx = fXSpeed>0?fx:-fx
+          let fy = fx / fXSpeed * fYSpeed
+          fy = fYSpeed>0?fy:-fy
           // console.log(f.position,s.position)
           // console.log(f.direction,f.crashSize)
-          changeDirection(s)
-          changeDirection(f)
+          changeDirection(s,{x:sx,y:sy})
+          changeDirection(f,{x:fx,y:fy})
           // instance!.proxy!.$forceUpdate()
         } else {
           f.crashSize = 0
