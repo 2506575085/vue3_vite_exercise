@@ -11,28 +11,29 @@ export default function useCollisionDetection(compareList: Ref<CompareList>, cha
         const f = compareItem[0]
         const s = compareItem[1]
         let crashed = false
-        // console.log(f, s)
-        let l = Math.sqrt(Math.pow(Math.abs(f.midPoint.x - s.midPoint.x),2)+Math.pow(Math.abs(f.midPoint.y - s.midPoint.y),2))
+
+        let l = Math.sqrt(Math.pow((f.midPoint.x - s.midPoint.x),2) + Math.pow((f.midPoint.y - s.midPoint.y),2))
         if (l <= ((f.size.width+s.size.width)/2)) {
           crashed = true
-          console.log('crash')
+          // console.log('crash')
         }
         if (crashed) {
+          //碰撞规则：碰撞后向中心点连线外向移动，速率不变
           let sXSpeed = s.midPoint.x - f.midPoint.x
           let sYSpeed = s.midPoint.y - f.midPoint.y
-          let sx = Math.pow(s.speed, 2) * (Math.pow(sYSpeed, 2) / (Math.pow(sYSpeed, 2) + Math.pow(sXSpeed, 2)))
-          sx = sXSpeed>0?sx:-sx
-          let sy = sx / sXSpeed * sYSpeed
-          sx = sXSpeed>0?sx:-sx
+          let sx = Math.abs(sXSpeed *s.speed) / Math.sqrt(Math.pow(sYSpeed, 2) + Math.pow(sXSpeed, 2))
+          sx = (sXSpeed>0) ? sx: (-sx)
+          let sy = Math.abs((sx / sXSpeed) * sYSpeed)
+          sy = (sYSpeed>0) ? sy: (-sy)
 
           let fXSpeed = f.midPoint.x - s.midPoint.x
           let fYSpeed = f.midPoint.y - s.midPoint.y
-          let fx = Math.pow(f.speed, 2) * (Math.pow(fYSpeed, 2) / (Math.pow(fYSpeed, 2) + Math.pow(fXSpeed, 2)))
-          fx = fXSpeed>0?fx:-fx
-          let fy = fx / fXSpeed * fYSpeed
-          fy = fYSpeed>0?fy:-fy
-          // console.log(f.position,s.position)
-          // console.log(f.direction,f.crashSize)
+          let fx = Math.abs(fXSpeed*f.speed) / Math.sqrt(Math.pow(fYSpeed, 2) + Math.pow(fXSpeed, 2))
+          fx = (fXSpeed>0) ? fx : (-fx)
+          let fy = Math.abs((fx / fXSpeed) * fYSpeed)
+          fy = (fYSpeed > 0) ? fy : (-fy)
+          // console.log('s', Math.sqrt(Math.pow(sx, 2) + Math.pow(sy, 2)))
+          // console.log('f', Math.sqrt(Math.pow(fx, 2) + Math.pow(fy, 2)))
           changeDirection(s,{x:sx,y:sy})
           changeDirection(f,{x:fx,y:fy})
           // instance!.proxy!.$forceUpdate()

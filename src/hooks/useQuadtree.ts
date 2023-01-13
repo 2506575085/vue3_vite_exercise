@@ -163,5 +163,40 @@ export default  function useQuadtree(maxX: number, maxY: number, IitemsList: Ite
     getFullQuadtree(quadtree.value)
   }
   updateTree(IitemsList)
-  return { quadtree, compareList , getFullQuadtree, updateTree}
+
+  function getItemsNearby(item: moveItem, quadtree: Quadtree) {
+    let findFlag = false
+    function find(treeNode: Quadtree) {
+      if (findFlag) {
+        return
+      }
+      const left = treeNode.position.left
+      const right = treeNode.position.left + treeNode.size.width
+      const top = treeNode.position.top
+      const bottom = treeNode.position.top + treeNode.size.height
+      const { x, y } = item.midPoint
+      const index = treeNode.index
+      // console.log(index)
+      if ((x > left) && (x < right) && (y > top) && (y < bottom)) {
+        if (treeNode.children) {
+          find(treeNode.children['1'])
+          find(treeNode.children['2'])
+          find(treeNode.children['3'])
+          find(treeNode.children['4'])
+        } else {
+          console.log('5在', treeNode.index)
+          findFlag = true
+          return 
+        }
+      } else {
+        if ((Number(index[index.length - 1]) < 4)&&treeNode.children) {
+          find(treeNode.children[(Number(index[index.length - 1])+1).toString()])
+        } else {
+        }
+      }
+    }
+    find(quadtree)
+  }
+
+  return { quadtree, compareList , getFullQuadtree, updateTree, getItemsNearby}
 }

@@ -71,5 +71,6 @@ type UseQuadtreeReturn = {
   compareList: Ref<CompareList>,
   getFullQuadtree: (treeNode: Quadtree) => void,
   updateTree: (itemsList: ItemsList) => void,
+  getItemsNearby: (item:moveItem,quadtree:Quadtree) => void
 }
 export type { Quadtree, CompareList, ItemsList, UseQuadtreeReturn, defaultItemData, moveItem }

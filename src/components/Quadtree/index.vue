@@ -35,6 +35,7 @@
         <button @click="random">随机生成</button>
         <button @click="start">开始</button>
         <button @click="stop">暂停</button>
+        <!-- <button @click="test">测试</button> -->
       </div>
       <div class="title">碰撞检测数组</div>
       <span class="list" v-for="compitem in compareList">{{ compitem.map(v=>v.id) }}</span>
@@ -58,7 +59,7 @@ let maxY = 800
 let running = ref(false)
 
 /*****   元素总数    *****/
-let itemCount = ref(50)
+let itemCount = ref(100)
 /*****   元素尺寸    *****/
 let itemSize = ref<moveItem['size']>({ width: 10, height: 10 })
 
@@ -79,8 +80,10 @@ const { itemsList, randomItems, changeDir} = useMoveItems({size:itemSize.value},
  * 更新四叉树和compareList
  * @param itemsList
  */
-const { quadtree, compareList, getFullQuadtree, updateTree } = UseQuadTree(maxX,maxY,itemsList.value)
-
+const { quadtree, compareList, getFullQuadtree, updateTree, getItemsNearby } = UseQuadTree(maxX,maxY,itemsList.value)
+function test() {
+  getItemsNearby(itemsList.value[5],quadtree.value)
+}
 /**
  * 生成碰撞检测
  */

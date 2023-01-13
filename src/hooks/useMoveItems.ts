@@ -60,7 +60,7 @@ export default function useMoveItems(inputItemData: defaultItemData, container: 
       const left = fullClose(0, maxX - inputItemData.size.width)
       const top = fullClose(0, maxY - inputItemData.size.height)
       let xDir = fullClose(-speed, speed)
-      let yDirAbs = Math.sqrt(Math.pow(speed, 2) -Math.abs(Math.pow(xDir, 2)))
+      let yDirAbs = Math.sqrt(Math.pow(speed, 2) - Math.pow(xDir, 2))
       let yDir = (intFullClose(0,1)==0)?(yDirAbs):(-yDirAbs)
       const item = new Item({
         ...inputItemData,

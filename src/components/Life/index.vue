@@ -29,13 +29,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, watch, onBeforeUnmount } from 'vue'
+import { ref, watchEffect, watch, onBeforeUnmount, onMounted } from 'vue'
 import { deepClone, randomNum } from '@/utils'
 import { SetList,Select,SelectList } from './types'
 const { intFullClose } = randomNum
 const mainBox = ref<HTMLInputElement | null>(null)
-let maxX = 100
-let maxY = 50
+let maxX = 300
+let maxY = 150
+onMounted(() => {
+  //控制显示网格
+  mainBox.value!.style.backgroundSize = `${100/maxX}% ${100/maxY}%`
+})
+
 let running = ref(false)
 
 const selectBox = ref<SetList>({})
@@ -171,7 +176,7 @@ function clear() {
   padding-bottom: 50%;
   position: absolute;
   background-image: linear-gradient( 90deg,rgba(255,0,0,0.05) 0.5px,rgba(72,42,10,0) 0),linear-gradient( 1turn,rgba(0,0,0,0.05) 0.5px,rgba(255,153,44,0) 0);
-  background-size: 1% 2%;
+  background-size: 0.5% 1%;
   box-sizing: border-box;
   border-top: 1px solid #fff2f2;
   background-color: antiquewhite;
