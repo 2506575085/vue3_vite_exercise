@@ -1,10 +1,10 @@
-type RandomFn = (min: number, max: number) => number
-type RandomNum = {
+declare type RandomFn = (min: number, max: number) => number
+declare type RandomNum = {
     [index:string]:RandomFn
 }
 
 // Omit 删除指定类型的key返回删除后的接口类型
-interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
+declare interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
   name: string;
   meta: RouteMeta;
   component?: Component | string;
@@ -13,10 +13,10 @@ interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
   props?: any;
   fullPath?: string;
 }
-interface RouteMeta {
+declare interface RouteMeta {
   title: string;
 }
-interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
+declare interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
   name: string;
   meta: RouteMeta;
   component?: Component | string;
@@ -25,4 +25,15 @@ interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
   props?: any;
   fullPath?: string;
 }
-type AppRouteModule = AppRouteRecordRaw;
+declare type AppRouteModule = AppRouteRecordRaw;
+
+declare interface iHeadItem {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+declare interface iFootItem extends iHeadItem {
+  id:number
+}

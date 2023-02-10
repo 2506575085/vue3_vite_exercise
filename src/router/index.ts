@@ -13,7 +13,7 @@ export const router = createRouter({
  * 路由拦截
  */
 router.beforeEach((to,from)=>{
-  console.log('to :>> ', to,from);
+  // console.log('to :>> ', to,from);
 })
 /**
  * 挂载到vue实例函数

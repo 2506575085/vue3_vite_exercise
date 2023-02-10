@@ -10,7 +10,7 @@ Object.keys(modules).forEach((key) => {
   // console.log('mod :>> ', mod);
   const modList = Array.isArray(mod) ? [...mod] : [mod];
   routeModuleList.push(...modList);
-  console.log(routeModuleList)
+  // console.log(routeModuleList)
 });
 
 

@@ -58,7 +58,7 @@ export default  function useQuadtree(maxX: number, maxY: number, IitemsList: Ite
        */
       function getInnerItems(childrenPosition: { left: number, top: number }) {
         /**
-         * 子节点元素内
+         * 子节点内元素
          * */
         const innerItemsArr: ItemsList = []
         /**

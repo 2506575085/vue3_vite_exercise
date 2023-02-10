@@ -1,9 +1,9 @@
 const defaultRoute: AppRouteModule = {
   path: '/',
-  redirect:'/Life',
+  redirect:'/canvas',
   name: 'index',
   meta: {
-    title: "Life",
+    title: "index",
   },
 };
 export default defaultRoute;
