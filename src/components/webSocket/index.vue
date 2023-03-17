@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import { send } from 'process';
 import { ref, watchEffect, watch, onBeforeUnmount, onMounted, getCurrentInstance } from 'vue'
 let ws:WebSocket
 let text = ref<string>('')
