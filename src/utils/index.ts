@@ -137,9 +137,9 @@ export function sleep(time:number){
  * @param delay 延迟时间 ms
  * @param immediate 是否立即执行
  */
- export function debounce(func: Function, delay: number, immediate: boolean = false): Function {
+type Func = (this:unknown,...args:any[])=> unknown
+export function debounce<T extends Func>(func: T, delay: number, immediate: boolean = false): T {
   let timer: NodeJS.Timeout | undefined
-
   return function (this: unknown, ...args: any[]) {
     let that = this
     if (immediate) {
@@ -151,5 +151,5 @@ export function sleep(time:number){
     timer = setTimeout(() => {
       func.apply(that, args)
     }, delay)
-  }
+  } as T
 }

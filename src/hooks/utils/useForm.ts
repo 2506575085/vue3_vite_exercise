@@ -1,5 +1,6 @@
 import { ref, Ref } from 'vue'
 import { cloneDeep } from 'lodash-es'
+import { debounce } from '@/utils'
 import type { FormInstance } from 'element-plus'
 type cb = (...args: unknown[]) => unknown
 export function userForm<O extends cb, S extends cb, C extends cb, F>({
@@ -21,6 +22,9 @@ export function userForm<O extends cb, S extends cb, C extends cb, F>({
   onSubmit?: S
 }) {
   const open: O = ((...args) => {
+    if (formRef?.value) {
+      formRef.value.resetFields()
+    }
     beforeOpen && beforeOpen(...args)
     dialogVisible.value = true
     return opened && opened(...args)
@@ -32,7 +36,7 @@ export function userForm<O extends cb, S extends cb, C extends cb, F>({
     return closed && closed(...args)
   }) as C
 
-  const submit: S = (async (...args) => {
+  const submit: S = debounce((async (...args) => {
     if (formRef) {
       await formRef.value!.validate((valid, _fields) => {
         if (!valid) {
@@ -41,7 +45,7 @@ export function userForm<O extends cb, S extends cb, C extends cb, F>({
       })
     }
     onSubmit && onSubmit(...args)
-  }) as S
+  }) as S, 500, true)
 
   return { open, submit, close }
 }
