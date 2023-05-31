@@ -5,7 +5,7 @@ import { createRouter, createWebHashHistory } from "vue-router"
 const basicRoutes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/Quadtree",
+    redirect: "/maze",
     name: "index",
     meta: {
       title: "index",
@@ -43,6 +43,22 @@ const basicRoutes: RouteRecordRaw[] = [
       title: "canvas",
     },
   },
+  {
+    path: "/maze",
+    name: "maze",
+    component: () => import("@/components/maze/index.vue"),
+    meta: {
+      title: "maze",
+    },
+  },
+  {
+    path: "/svg",
+    name: "svg",
+    component: () => import("@/components/svg/index.vue"),
+    meta: {
+      title: "svg",
+    },
+  }
 ]
 
 /**
