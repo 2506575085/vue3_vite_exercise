@@ -7,8 +7,8 @@ interface IBinaryTree<T>{
   getLChild(): BinaryTree<T>
   getLChild(): BinaryTree<T>
   getChildByIndex(index: number): BinaryTree<T>
-  dfs(index:number, cb:(node:nullable<T>,i:number) => unknown): void
-  bfs(index:number, cb:(node:nullable<T>,i:number) => unknown): void
+  dfs(cb:(node:nullable<T>,i:number) => unknown, index?:number): void
+  bfs(cb:(node:nullable<T>,i:number) => unknown, index?:number): void
   setChild(index: number,child: BinaryTree<T>): void
   setHeight(height:number): void
   getHeight(): number
@@ -71,7 +71,7 @@ export class BinaryTree<T> implements IBinaryTree<T>{
    * @param cb 
    * @returns 
    */
-  dfs(index:number, cb:(node:nullable<T>,i:number) => unknown){
+  dfs(cb:(node:nullable<T>,i:number) => unknown, index:number = 1){
     if(this.list[index] === undefined){
       return
     }
@@ -93,7 +93,7 @@ export class BinaryTree<T> implements IBinaryTree<T>{
    * @param index 
    * @param cb 
    */
-  bfs(index:number, cb:(node:nullable<T>,i:number) => unknown){
+  bfs(cb:(node:nullable<T>,i:number) => unknown, index:number = 1){
     const bfsIndexQueue = new Queue<number>()
     cb(this.list[index], index)
     this.bfsWithoutRoot(index,cb,bfsIndexQueue)
@@ -117,19 +117,17 @@ export class BinaryTree<T> implements IBinaryTree<T>{
    * @param child 
    */
   setChild(index: number,child: BinaryTree<T>){
-    if(!this.getNode((index-index%2)/2)){
+    if(this.getNode((index-index%2)/2)===undefined){
       throw new Error("new node is not linked")
     }
     if(child.getHeight() + BinaryTree.getDeepOfIndex(index) > this.getHeight()){
       this.setHeight(child.getHeight() + BinaryTree.getDeepOfIndex(index))
     }
     //清空子树
-    this.bfs(index,((node,i)=>{
-      this.setNode(i,undefined)
-    }))
+    this.setNode(index,undefined)
     let setIndex = index
     let lineStartIndex = index
-    child.bfs(1,(node,i)=>{
+    child.bfs((node,i)=>{
       this.setNode(setIndex,node)
       const lineNumCount = BinaryTree.getLineCountByDeep(BinaryTree.getDeepOfIndex(i))
       if(setIndex < lineStartIndex + lineNumCount-1){
@@ -188,10 +186,20 @@ export class BinaryTree<T> implements IBinaryTree<T>{
 
   /**
    * 修改node值
+   * @description 将一个结点设为undefined时会将其子节点全部设置为undefined
    * @param index 
    * @param node 
    */
   setNode(index: number,node: nullable<T>){
+    if(this.getNode((index-index%2)/2) === undefined){
+      throw new Error("new node is not linked")
+    }
+    if(node===undefined && (this.list[index*2] || this.list[index*2+1])) {
+      this.bfs((node,i)=>{
+        this.setNode(i*2,undefined)
+        this.setNode(i*2+1,undefined)
+      },index)
+    }
     this.list[index] = node
   }
 
