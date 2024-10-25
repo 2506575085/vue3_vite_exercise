@@ -68,8 +68,8 @@ class NewMaze{
   private startPoint: roomType = [0,0]
   /**配置 */
   private CONFIG = {
-    ROW_NUM: 80,
-    ROW_LENGTH: 10
+    ROW_NUM: 500,
+    ROW_LENGTH: 2
   }
   constructor(canvasRef:Ref<HTMLCanvasElement>){
     const CONFIG = this.CONFIG
@@ -236,10 +236,15 @@ class NewMaze{
   }
 }
 
-onMounted(()=>{
-  const maze = new NewMaze(canvas as Ref<HTMLCanvasElement>)
-  maze.initMaze()
-  maze.drawMaze()
+onMounted(async ()=>{
+  setTimeout(() => {
+    const ts0 = Date.now()
+    const maze = new NewMaze(canvas as Ref<HTMLCanvasElement>)
+    maze.initMaze()
+    console.log('耗时：',Date.now()-ts0)
+    maze.drawMaze()
+  }, 0)
+  
 })
 
 

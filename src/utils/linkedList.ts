@@ -283,7 +283,7 @@ export class LinkedList<T> implements ILinkedList<T>{
         iter.next()
       })
       this.length = list.length
-    } else if(list instanceof LinkedList<T>){
+    } else if(list instanceof LinkedList){
       const iter0 = list.iter()
       while(iter0.hasNext()){
         iter0.next()

@@ -34,8 +34,8 @@ import { deepClone, randomNum } from '@/utils'
 import { SetList,Select,SelectList } from './types'
 const { intFullClose } = randomNum
 const mainBox = ref<HTMLInputElement | null>(null)
-let maxX = 300
-let maxY = 150
+let maxX = 100
+let maxY = 50
 onMounted(() => {
   //控制显示网格
   mainBox.value!.style.backgroundSize = `${100/maxX}% ${100/maxY}%`
@@ -89,6 +89,7 @@ watchEffect(() => {
   const list:SelectList = []
   Object.keys(selectBox.value).forEach(strY => {
     let y = Number(strY)
+    // let y = strY
     selectBox.value[y].forEach(x => {
       list.push({x,y})
     })
@@ -100,6 +101,7 @@ function updateStatus() {
   let allBox:SetList = {}
   Object.keys(selectBox.value).forEach(strY => {
     let y = Number(strY)
+    // let y = strY
     selectBox.value[y].forEach(x => {
       for (let j = x - 1; j <= x + 1; j++){
         for (let k = y - 1; k <= y + 1; k++){
@@ -116,6 +118,7 @@ function updateStatus() {
   selectBoxClone.value = deepClone(selectBox.value)!
   Object.keys(allBox).forEach(strY => {
     let y = Number(strY)
+    // let y = strY
     allBox[y].forEach(x => {
       let count = 0
       for (let j = x - 1; j <= x+1; j++){
