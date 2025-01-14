@@ -5,7 +5,7 @@ import { createRouter, createWebHashHistory } from "vue-router"
 const basicRoutes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/mazeRequest",
+    redirect: "/staveGenerate",
     name: "index",
     meta: {
       title: "index",
@@ -79,6 +79,16 @@ const basicRoutes: RouteRecordRaw[] = [
     path: "/mazeRequest",
     name: "mazeRequest",
     component: () => import("@/components/maze_request/index.vue")
+  },
+  {
+    path: "/indexedDBUse",
+    name: "indexedDBUse",
+    component: () => import("@/components/indexedDBUse/index.vue")
+  },
+  {
+    path: "/staveGenerate",
+    name: "staveGenerate",
+    component: () => import("@/components/staveGenerate/index.vue")
   }
 ]
 

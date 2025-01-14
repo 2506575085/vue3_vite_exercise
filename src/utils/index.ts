@@ -53,7 +53,7 @@
 /**
  * 生成范围内随机数
  */
-export const randomNum: RandomNum = {
+export const randomNum = {
 
     /**
      * 生成[min,max]范围随机数
@@ -61,7 +61,7 @@ export const randomNum: RandomNum = {
      * @param max 
      * @returns 
      */
-    fullClose(min,max) {
+    fullClose(min: number, max: number) {
         var result = Math.random()*(max+1-min)+min;
         while(result>max) {
             result = Math.random()*(max+1-min)+min;
@@ -75,7 +75,7 @@ export const randomNum: RandomNum = {
      * @param max 
      * @returns 
      */
-    fullOpen(min,max) {
+    fullOpen(min: number, max: number) {
         var result = Math.random()*(max-min)+min;
         while(result == min) {
             result = Math.random()*(max-min)+min;
@@ -89,7 +89,7 @@ export const randomNum: RandomNum = {
      * @param max 
      * @returns 
      */
-    leftOpen(min,max) {
+    leftOpen(min: number, max: number) {
         var result = Math.random()*(max-min+1)+min-1;
         while(result<min) {
             result = Math.random()*(max-min+1)+min-1;
@@ -103,7 +103,7 @@ export const randomNum: RandomNum = {
      * @param max 
      * @returns 
      */
-    rightOpen(min, max) {
+    rightOpen(min: number, max: number) {
         return Math.random()*(min-max)+max
     },
     
@@ -113,7 +113,7 @@ export const randomNum: RandomNum = {
      * @param max 
      * @returns 
      */
-    intFullClose(min, max) {
+    intFullClose(min: number, max: number) {
         return Math.floor(Math.random()*(max-min+1))+min
     }
 }

@@ -64,90 +64,90 @@ const route = useRoute()
 //   }
 // }
 
-// 格式化字符串装饰器
-const formatMetadataKey = Symbol("format")
-function format(str: string) {
-  // 属性装饰器
-  return Reflect.metadata(formatMetadataKey, str)
-}
-function getFormatTemplate<T extends Object>(target: T, key: keyof T) {
-  return Reflect.getMetadata(formatMetadataKey, target, key as string | symbol)
-}
+// // 格式化字符串装饰器
+// const formatMetadataKey = Symbol("format")
+// function format(str: string) {
+//   // 属性装饰器
+//   return Reflect.metadata(formatMetadataKey, str)
+// }
+// function getFormatTemplate<T extends Object>(target: T, key: keyof T) {
+//   return Reflect.getMetadata(formatMetadataKey, target, key as string | symbol)
+// }
 
-// 运行时必要参数检测
-const requiredMetadataKey = Symbol("required")
-// 方法参数装饰器
-function required(target: Object, key: string | symbol, index: number) {
-  console.log("required", target, key, index)
-  const requiredParams: number[] = Reflect.getOwnMetadata(requiredMetadataKey, target, key) || []
-  requiredParams.push(index)
-  Reflect.defineMetadata(requiredMetadataKey, requiredParams, target, key)
-}
-// 方法装饰器
-function validate(target: Object, key: string, descriptor: TypedPropertyDescriptor<(...args: any[]) => any>) {
-  console.log("validate", target, key, descriptor)
-  let func = descriptor.value!
-  descriptor.value = function (...args: unknown[]) {
-    const requiredParams: number[] = Reflect.getOwnMetadata(requiredMetadataKey, target, key)
-    if (requiredParams) {
-      requiredParams.forEach(paramsIndex => {
-        if (paramsIndex >= args.length || args[paramsIndex] === undefined) {
-          throw new Error("缺少必要参数")
-        }
-      })
-    }
-    return func.apply(this, args)
-  }
-}
+// // 运行时必要参数检测
+// const requiredMetadataKey = Symbol("required")
+// // 方法参数装饰器
+// function required(target: Object, key: string | symbol, index: number) {
+//   console.log("required", target, key, index)
+//   const requiredParams: number[] = Reflect.getOwnMetadata(requiredMetadataKey, target, key) || []
+//   requiredParams.push(index)
+//   Reflect.defineMetadata(requiredMetadataKey, requiredParams, target, key)
+// }
+// // 方法装饰器
+// function validate(target: Object, key: string, descriptor: TypedPropertyDescriptor<(...args: any[]) => any>) {
+//   console.log("validate", target, key, descriptor)
+//   let func = descriptor.value!
+//   descriptor.value = function (...args: unknown[]) {
+//     const requiredParams: number[] = Reflect.getOwnMetadata(requiredMetadataKey, target, key)
+//     if (requiredParams) {
+//       requiredParams.forEach(paramsIndex => {
+//         if (paramsIndex >= args.length || args[paramsIndex] === undefined) {
+//           throw new Error("缺少必要参数")
+//         }
+//       })
+//     }
+//     return func.apply(this, args)
+//   }
+// }
 
 
-function setTypeCheck<T>(target: any, key: string, descriptor: TypedPropertyDescriptor<T>) {
-  let func = descriptor.set!
-  descriptor.set = function (v: T) {
-    const type = Reflect.getMetadata("design:type", target, key)
-    console.log("typeCheck", target, key, descriptor,type,v)
-    console.log("typeCheck", v instanceof type)
-    func.call(this, v)
-  }
-}
+// function setTypeCheck<T>(target: any, key: string, descriptor: TypedPropertyDescriptor<T>) {
+//   let func = descriptor.set!
+//   descriptor.set = function (v: T) {
+//     const type = Reflect.getMetadata("design:type", target, key)
+//     console.log("typeCheck", target, key, descriptor,type,v)
+//     console.log("typeCheck", v instanceof type)
+//     func.call(this, v)
+//   }
+// }
 
-class Greeter {
-  @format("Hello, %s")
-  greeting: string
+// class Greeter {
+//   @format("Hello, %s")
+//   greeting: string
   
-  @format("%s ,XIXI, %s")
-  name: string
+//   @format("%s ,XIXI, %s")
+//   name: string
 
-  constructor({greeting, name}: {greeting: string, name: string}) {
-    this.greeting = greeting
-    this.name = name
-  }
-  @validate
-  getFormat(@required key: keyof Greeter): string {
-    const formatTemplate = getFormatTemplate(this, key)
-    return formatTemplate.replaceAll("%s", this[key])
-  }
+//   constructor({greeting, name}: {greeting: string, name: string}) {
+//     this.greeting = greeting
+//     this.name = name
+//   }
+//   @validate
+//   getFormat(@required key: keyof Greeter): string {
+//     const formatTemplate = getFormatTemplate(this, key)
+//     return formatTemplate.replaceAll("%s", this[key])
+//   }
 
-  @setTypeCheck
-  @Reflect.metadata("design:type", String)
-  set nameVisit(value: string) {
-    this.name = value
-  }
-  get nameVisit() {
-    return this.name
-  }
-}
+//   @setTypeCheck
+//   @Reflect.metadata("design:type", String)
+//   set nameVisit(value: string) {
+//     this.name = value
+//   }
+//   get nameVisit() {
+//     return this.name
+//   }
+// }
 
-// 无论调用方提供方，均需多传少取才可兼容
-const provider = (a: number) => { return { a, b: 2, c: 3 } }
-const injector: (a: number, b: number, c: number) => { a: number } = provider
-const { a } = injector(1, 2, 3)
+// // 无论调用方提供方，均需多传少取才可兼容
+// const provider = (a: number) => { return { a, b: 2, c: 3 } }
+// const injector: (a: number, b: number, c: number) => { a: number } = provider
+// const { a } = injector(1, 2, 3)
 
 onMounted(()=>{
-  const g = new Greeter({greeting: "world", name: "cheng"})
-  console.log(g.getFormat("greeting"))
-  console.log(g.getFormat("name"))
-  g.nameVisit = "xixi"
+  // const g = new Greeter({greeting: "world", name: "cheng"})
+  // console.log(g.getFormat("greeting"))
+  // console.log(g.getFormat("name"))
+  // g.nameVisit = "xixi"
   // const a = new Example(1)
   // Example.method()
   // console.log(route.query)
@@ -159,7 +159,7 @@ onMounted(()=>{
   //     console.error(err)
   //   }
   // }
-  // generateQR('http://192.168.110.95:8081/dyAuth')
+  // generateQR('https://open.douyin.com/platform/oauth/qr_auth/?client_key=awf4rhn9l2uzdwoy\u0026hide_nav_bar=1\u0026qr_source_aid=0\u0026token=923ca9c78ff46e1f8a9666d8080f59fa_lf')
 })
 // fetch('img.png')
 //   .then(res=>{

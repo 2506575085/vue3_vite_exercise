@@ -1,7 +1,3 @@
-declare type RandomFn = (min: number, max: number) => number
-declare type RandomNum = {
-    [index:string]:RandomFn
-}
 
 // Omit 删除指定类型的key返回删除后的接口类型
 declare interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
